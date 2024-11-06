@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: auth-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels: 
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+        - name: auth
+          image: harshtyagi14/auth:latest # Specify a tag if necessary
+          env:
+            - name: JWT_KEY
+              valueFrom: 
+                secretKeyRef:
+                  name: jwt-secret  # Corrected the secret name from kwt-secret to jwt-secret
+                  key: JWT_KEY      # Corrected the key to match the secret key
+
+          ports:
+            - containerPort: 3000 # Specify the container port
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-srv
+spec:
+  selector:
+    app: auth
+  ports:
+    - name: auth # Fixed indentation
+      protocol: TCP
+      port: 3000
+      targetPort: 3000
+  type: ClusterIP # Optional: specify the service type (default is ClusterIP)
